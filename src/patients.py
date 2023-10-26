@@ -14,6 +14,7 @@ class Patients:
 
         self.__create_by_sex_dict()
         self.__calc_total_patients()
+        self.__get_unique_regions()
     
 
     # Self Calculations Methods
@@ -21,7 +22,6 @@ class Patients:
         self.total_patients = len(self.ages)
         self.total_male = len(self.ages)
         self.total_female = len(self.ages)
-
 
     def __create_by_sex_dict(self):
         by_sex_dict =  {'male': {'age' : [], 'bmi' : [], 'children' : [], 'smoker' : [], 'region' : [], 'insurance_cost' : []}, 
@@ -37,6 +37,9 @@ class Patients:
             by_sex_dict[patient_info[1]]['insurance_cost'].append(patient_info[6]) 
         
         self.by_sex_dict = by_sex_dict
+    
+    def __get_unique_regions(self):
+        self.unique_regions = list(self.region.unique())
 
 
     # Data description
@@ -178,5 +181,34 @@ class Patients:
 
 
     # Region Analysis
+    def regions_analysis(self):
+        print('\nRegions Analysis:')
+        result = ''
 
+        for region in self.unique_regions:
+            smokers_in_region = self.__calc_smokers_by_region(region)
+            cost_in_region = round(self.__calc_cost_by_region(region),2)
+            result += f'In the {region} there are {smokers_in_region} smokers. The average cost of insurance in this region is of ${cost_in_region}.\n'
+
+        return result
+
+    def __calc_smokers_by_region(self, region_used : str):
+        smokers_by_region_dict = {region : [] for region in self.unique_regions}
+        regions_smoker_info = zip(self.region, self.smoker)
+
+        for region, smoker in regions_smoker_info:
+            if smoker == 'yes':
+                smokers_by_region_dict[region].append(1)
+
+        return sum(smokers_by_region_dict[region_used])
+
+    def __calc_cost_by_region(self, region_used : str):
+        cost_by_region_dict = {region : [] for region in self.unique_regions}
+        regions_cost_info = zip(self.region, self.insurance_cost)
+
+        for region, cost in regions_cost_info:
+            cost_by_region_dict[region].append(cost)
+
+        return sum(cost_by_region_dict[region_used]) / len(cost_by_region_dict[region_used])
+    
 
